@@ -46,7 +46,7 @@ using namespace QInstaller;
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
 #include <shlobj.h>
-#include <Intshcut.h>
+#include <intshcut.h>
 
 #ifndef PIDLIST_ABSOLUTE
 typedef ITEMIDLIST *PIDLIST_ABSOLUTE;
