@@ -687,7 +687,7 @@ void Settings::setRepositorySettingsPageVisible(bool visible)
 
 Settings::ProxyType Settings::proxyType() const
 {
-    return Settings::ProxyType(d->m_data.value(scProxyType, Settings::NoProxy).toInt());
+    return Settings::ProxyType(d->m_data.value(scProxyType, Settings::SystemProxy).toInt());
 }
 
 void Settings::setProxyType(Settings::ProxyType type)
