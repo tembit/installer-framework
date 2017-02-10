@@ -1559,7 +1559,7 @@ Fehler beim Laden von %2</translation>
     <name>QInstaller::LicenseAgreementPage</name>
     <message>
         <source>License Agreement</source>
-        <translation>Lizenzabkommen</translation>
+        <translation>Lizenzbestimmungen</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -1569,27 +1569,27 @@ Fehler beim Laden von %2</translation>
     </message>
     <message>
         <source>Please read the following license agreement. You must accept the terms contained in this agreement before continuing with the installation.</source>
-        <translation>Bitte lesen Sie das folgende Lizenzabkommen. Sie müssen die Bedingungen in diesem Abkommen akzeptieren, um die Installation fortsetzen zu können.</translation>
+        <translation>Bitte lesen Sie die folgenden Lizenzbestimmungen. Sie müssen diese Bestimmungen akzeptieren, um die Installation fortsetzen zu können.</translation>
     </message>
     <message>
         <source>I accept the license.</source>
-        <translation>Ich akzeptiere die Lizenzvereinbarung.</translation>
+        <translation>Ich akzeptiere die Lizenzbestimmungen.</translation>
     </message>
     <message>
         <source>I do not accept the license.</source>
-        <translation>Ich akzeptiere die Lizenzvereinbarung nicht.</translation>
+        <translation>Ich akzeptiere die Lizenzbestimmungen nicht.</translation>
     </message>
     <message>
         <source>Please read the following license agreements. You must accept the terms contained in these agreements before continuing with the installation.</source>
-        <translation>Bitte lesen Sie die folgenden Lizenzabkommen. Sie müssen die Bedingungen in diesen Abkommen akzeptieren, um die Installation fortsetzen zu können.</translation>
+        <translation>Bitte lesen Sie die folgenden Lizenzbestimmungen. Sie müssen diese Bestimmungen akzeptieren, um die Installation fortsetzen zu können.</translation>
     </message>
     <message>
         <source>I do not accept the licenses.</source>
-        <translation>Ich akzeptiere die Lizenzvereinbarungen nicht.</translation>
+        <translation>Ich akzeptiere die Lizenzbestimmungen nicht.</translation>
     </message>
     <message>
         <source>I accept the licenses.</source>
-        <translation>Ich akzeptiere die Lizenzvereinbarungen.</translation>
+        <translation>Ich akzeptiere die Lizenzbestimmungen.</translation>
     </message>
     <message>
         <source>Alt+D</source>
