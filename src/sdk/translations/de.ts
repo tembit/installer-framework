@@ -1520,7 +1520,7 @@ Fehler beim Laden von %2</translation>
     </message>
     <message>
         <source>Welcome to the %1 Setup Wizard.</source>
-        <translation>Willkommen zum %1 Einrichtungsassistenten.</translation>
+        <translation>Willkommen bei der Installation der %1.</translation>
     </message>
     <message>
         <source>Add or remove components</source>
