@@ -130,21 +130,21 @@ QString QInstaller::humanReadableSize(const qint64 &size, int precision)
     static QStringList measures;
     if (measures.isEmpty())
         measures << QCoreApplication::translate("QInstaller", "bytes")
-                 << QCoreApplication::translate("QInstaller", "KiB")
-                 << QCoreApplication::translate("QInstaller", "MiB")
-                 << QCoreApplication::translate("QInstaller", "GiB")
-                 << QCoreApplication::translate("QInstaller", "TiB")
-                 << QCoreApplication::translate("QInstaller", "PiB")
-                 << QCoreApplication::translate("QInstaller", "EiB")
-                 << QCoreApplication::translate("QInstaller", "ZiB")
-                 << QCoreApplication::translate("QInstaller", "YiB");
+                 << QCoreApplication::translate("QInstaller", "KB")
+                 << QCoreApplication::translate("QInstaller", "MB")
+                 << QCoreApplication::translate("QInstaller", "GB")
+                 << QCoreApplication::translate("QInstaller", "TB")
+                 << QCoreApplication::translate("QInstaller", "PB")
+                 << QCoreApplication::translate("QInstaller", "EB")
+                 << QCoreApplication::translate("QInstaller", "ZB")
+                 << QCoreApplication::translate("QInstaller", "YB");
 
     QStringListIterator it(measures);
     QString measure(it.next());
 
-    while (sizeAsDouble >= 1024.0 && it.hasNext()) {
+    while (sizeAsDouble >= 1000.0 && it.hasNext()) {
         measure = it.next();
-        sizeAsDouble /= 1024.0;
+        sizeAsDouble /= 1000.0;
     }
     return QString::fromLatin1("%1 %2").arg(sizeAsDouble, 0, 'f', precision).arg(measure);
 }

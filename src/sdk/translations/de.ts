@@ -725,36 +725,36 @@
         <translation>Bytes</translation>
     </message>
     <message>
-        <source>KiB</source>
-        <translation>KiB</translation>
+        <source>KB</source>
+        <translation>KB</translation>
     </message>
     <message>
-        <source>MiB</source>
-        <translation>MiB</translation>
+        <source>MB</source>
+        <translation>MB</translation>
     </message>
     <message>
-        <source>GiB</source>
-        <translation>GiB</translation>
+        <source>GB</source>
+        <translation>GB</translation>
     </message>
     <message>
-        <source>TiB</source>
-        <translation>TiB</translation>
+        <source>TB</source>
+        <translation>TB</translation>
     </message>
     <message>
-        <source>PiB</source>
-        <translation>PiB</translation>
+        <source>PB</source>
+        <translation>PB</translation>
     </message>
     <message>
-        <source>EiB</source>
-        <translation>EiB</translation>
+        <source>EB</source>
+        <translation>EB</translation>
     </message>
     <message>
-        <source>ZiB</source>
-        <translation>ZiB</translation>
+        <source>ZB</source>
+        <translation>ZB</translation>
     </message>
     <message>
         <source>YiB</source>
-        <translation>YiB</translation>
+        <translation>YB</translation>
     </message>
     <message>
         <source>Cannot remove file %1: %2</source>
@@ -2115,7 +2115,7 @@ Bitte kopieren Sie den Installer auf ein lokales Laufwerk</translation>
     </message>
     <message>
         <source>The volume you selected for installation seems to have sufficient space for installation, but there will be less than 100 MB available afterwards. %1</source>
-        <translation>Die für die Installation ausgewählte Partition scheint genügend Platz zu bieten, aber es werden anschließend weniger als 100 MiB verfügbar sein. %1</translation>
+        <translation>Die für die Installation ausgewählte Partition scheint genügend Platz zu bieten, aber es werden anschließend weniger als 100 MB verfügbar sein. %1</translation>
     </message>
     <message>
         <source>Installation will use %1 of disk space.</source>
