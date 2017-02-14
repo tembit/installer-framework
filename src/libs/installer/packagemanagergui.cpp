@@ -3155,6 +3155,13 @@ void FinishedPage::entering()
 
     m_runItCheckBox->hide();
     m_runItCheckBox->setChecked(false);
+
+    // hide the 'restart' button after updating, because it confuses our users
+    if (packageManagerCore()->isUpdater()) {
+        if (QAbstractButton *restart = gui()->button(QWizard::CommitButton)) {
+            restart->setVisible(false);
+        }
+    }
 }
 
 /*!
