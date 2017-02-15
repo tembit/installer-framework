@@ -2001,7 +2001,7 @@ void PackageManagerCorePrivate::registerMaintenanceTool()
     QSettingsWrapper settings(registerPath(), QSettingsWrapper::NativeFormat);
     settings.setValue(scDisplayName, m_data.value(QLatin1String("ProductName")));
     settings.setValue(QLatin1String("DisplayVersion"), m_data.value(QLatin1String("ProductVersion")));
-    const QString maintenanceTool = QDir::toNativeSeparators(maintenanceToolName());
+    const QString maintenanceTool = QLatin1Char('"') + QDir::toNativeSeparators(maintenanceToolName()) + QLatin1Char('"');
     settings.setValue(QLatin1String("DisplayIcon"), maintenanceTool);
     settings.setValue(scPublisher, m_data.value(scPublisher));
     settings.setValue(QLatin1String("UrlInfoAbout"), m_data.value(QLatin1String("Url")));
