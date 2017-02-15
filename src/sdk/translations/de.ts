@@ -1438,12 +1438,8 @@ Fehler beim Laden von %2</translation>
         <translation>Beende den %1 Assistenten.</translation>
     </message>
     <message>
-        <source>Click Done to exit the %1 Wizard.</source>
-        <translation>Klicken Sie &quot;Abschließen&quot;, um den %1 Assistenten zu beenden.</translation>
-    </message>
-    <message>
-        <source>Click Finish to exit the %1 Wizard.</source>
-        <translation>Klicken Sie &quot;Abschließen&quot;, um den %1 Assistenten zu beenden.</translation>
+        <source>Click %1 to exit the %2 Wizard.</source>
+        <translation>Klicken Sie „%1“, um den %2 Assistenten zu beenden.</translation>
     </message>
     <message>
         <source>Restart</source>
