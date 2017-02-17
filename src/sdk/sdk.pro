@@ -21,6 +21,10 @@ CONFIG(static, static|shared) {
 
 DESTDIR = $$IFW_APP_PATH
 
+# dirty fix for MXE bug
+LRELEASE ~= s/\.exe$//
+RCC ~= s/\.exe$//
+
 exists($$LRELEASE) {
     QT_LANGUAGES = qtbase_de qt_es qt_fr qtbase_it qtbase_ja qt_pl qtbase_ru qt_zh_CN
     IB_LANGUAGES = de en es fr it ja pl ru zh_cn
