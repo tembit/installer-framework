@@ -857,14 +857,17 @@ void PackageManagerGui::showFinishedPage()
 */
 void PackageManagerGui::showSettingsButton(bool show)
 {
-    if (d->m_showSettingsButton == show)
-        return;
+    // we never want to show the settings button
+    Q_UNUSED(show);
 
-    d->m_showSettingsButton = show;
-    setOption(QWizard::HaveCustomButton1, show);
-    setButtonText(QWizard::CustomButton1, tr("Settings"));
+//    if (d->m_showSettingsButton == show)
+//        return;
 
-    updateButtonLayout();
+//    d->m_showSettingsButton = show;
+//    setOption(QWizard::HaveCustomButton1, show);
+//    setButtonText(QWizard::CustomButton1, tr("Settings"));
+
+//    updateButtonLayout();
 }
 
 /*!
