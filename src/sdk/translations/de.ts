@@ -1236,8 +1236,8 @@ Error while loading %2</source>
 Fehler beim Laden von %2</translation>
     </message>
     <message>
-        <source>Downloading archive &apos;%1&apos; for component: %2</source>
-        <translation>Archiv &apos;%1&apos; für Komponente %2 wird heruntergeladen.</translation>
+        <source>Downloading archive &quot;%1&quot; for component %2.</source>
+        <translation>Archiv &quot;%1&quot; für Komponente %2 wird heruntergeladen.</translation>
     </message>
     <message>
         <source>Scheme not supported: %1 (%2)</source>
