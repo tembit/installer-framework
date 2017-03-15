@@ -256,7 +256,8 @@ Settings Settings::fromFileAndPrefix(const QString &path, const QString &prefix,
                 << scWizardDefaultWidth << scWizardDefaultHeight
                 << scRepositorySettingsPageVisible << scTargetConfigurationFile
                 << scRemoteRepositories << scTranslations << scUrlQueryString << QLatin1String(scControlScript)
-                << scCreateLocalRepository << scInstallActionColumnVisible << scSupportsModify;
+                << scCreateLocalRepository << scInstallActionColumnVisible << scSupportsModify
+                << scWinCpDisplayIcon;
 
     Settings s;
     s.d->m_data.insert(scPrefix, prefix);

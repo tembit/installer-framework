@@ -2002,7 +2002,13 @@ void PackageManagerCorePrivate::registerMaintenanceTool()
     settings.setValue(scDisplayName, m_data.value(QLatin1String("ProductName")));
     settings.setValue(QLatin1String("DisplayVersion"), m_data.value(QLatin1String("ProductVersion")));
     const QString maintenanceTool = QLatin1Char('"') + QDir::toNativeSeparators(maintenanceToolName()) + QLatin1Char('"');
-    settings.setValue(QLatin1String("DisplayIcon"), maintenanceTool);
+    const QString winCpDisplayIcon = m_core->value(scWinCpDisplayIcon);
+    if (winCpDisplayIcon.isEmpty()) {
+        settings.setValue(QLatin1String("DisplayIcon"), maintenanceTool);
+    } else {
+        const QString displayIcon = QLatin1Char('"') + QDir::toNativeSeparators(targetDir() + QLatin1Char('/') + winCpDisplayIcon) + QLatin1Char('"');
+        settings.setValue(QLatin1String("DisplayIcon"), displayIcon);
+    }
     settings.setValue(scPublisher, m_data.value(scPublisher));
     settings.setValue(QLatin1String("UrlInfoAbout"), m_data.value(QLatin1String("Url")));
     settings.setValue(QLatin1String("Comments"), m_data.value(scTitle));
