@@ -78,6 +78,10 @@
 # include <QWinTaskbarProgress>
 #endif
 
+#ifdef Q_OS_OSX
+#include <QMenuBar>
+#endif
+
 using namespace KDUpdater;
 using namespace QInstaller;
 
@@ -1269,6 +1273,12 @@ IntroductionPage::IntroductionPage(PackageManagerCore *core)
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     setLayout(layout);
+
+#ifdef Q_OS_OSX
+    // add an empty menu bar for macOS, so its default entries will be translated
+    QMenuBar *menuBar = new QMenuBar(this);
+    layout->addWidget(menuBar);
+#endif
 
     m_msgLabel = new QLabel(this);
     m_msgLabel->setWordWrap(true);
