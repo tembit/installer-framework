@@ -1512,11 +1512,11 @@ Fehler beim Laden von %2</translation>
     <name>QInstaller::IntroductionPage</name>
     <message>
         <source>Setup - %1</source>
-        <translation>Einrichten - %1</translation>
+        <translation>Einrichtung</translation>
     </message>
     <message>
         <source>Welcome to the %1 Setup Wizard.</source>
-        <translation>Willkommen bei der Installation der %1.</translation>
+        <translation>Willkommen bei der Installation von %1.</translation>
     </message>
     <message>
         <source>Add or remove components</source>
@@ -1945,7 +1945,7 @@ Installiere Komponente %1</translation>
     <name>QInstaller::PackageManagerGui</name>
     <message>
         <source>%1 Setup</source>
-        <translation>%1 Einrichtung</translation>
+        <translation>%1 Installation</translation>
     </message>
     <message>
         <source>Maintain %1</source>
