@@ -307,8 +307,27 @@ void Downloader::onAuthenticationRequired(QNetworkReply *reply, QAuthenticator *
     }
 }
 
-void Downloader::onProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *)
+void Downloader::onProxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *auth)
 {
+    // BEGIN tembit adjustments for crashing update checker
+    const QStringList args = QCoreApplication::arguments();
+    if (args.contains(QLatin1Literal("--checkupdates"))) {
+        if (args.size() != 4) {
+            qWarning() << "failed checking updates because proxy requires authentication";
+            return;
+        }
+        const QStringList userParts = args[2].split(QLatin1Char('='));
+        const QStringList passParts = args[3].split(QLatin1Char('='));
+        if (userParts.size() != 2 || userParts.first() != QLatin1Literal("ProxyUser") || passParts.size() != 2 || passParts.first() != QLatin1Literal("ProxyPass")) {
+            qCritical() << "invalid syntax for proxy authentication arguments";
+            return;
+        }
+        auth->setUser(userParts.last());
+        auth->setPassword(passParts.last());
+        return;
+    }
+    // END tembit adjustments for crashing update checker
+
     // Report to GUI thread.
     // (MetadataJob will ask for username/password, and restart the download ...)
     AuthenticationRequiredException e(AuthenticationRequiredException::Type::Proxy,
