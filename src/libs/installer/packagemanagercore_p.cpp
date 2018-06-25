@@ -162,8 +162,16 @@ static void deferredRename(const QString &oldName, const QString &newName, bool 
         batch << "    WScript.Sleep(1000)\n";
         batch << "wend\n";
         batch << QString::fromLatin1("fso.MoveFile \"%1\", file\n").arg(arguments[1]);
-        if (restart)
-            batch <<  QString::fromLatin1("tmp.exec \"%1 --updater\"\n").arg(arguments[2]);
+        if (restart) {
+            //Restart with same command line arguments as first executable
+            QStringList commandLineArguments = QCoreApplication::arguments();
+            batch <<  QString::fromLatin1("tmp.exec \"%1 --updater").arg(arguments[2]);
+            //Skip the first argument as that is executable itself
+            for (int i = 1; i < commandLineArguments.count(); i++) {
+                batch << QString::fromLatin1(" %1").arg(commandLineArguments.at(i));
+            }
+            batch << QString::fromLatin1("\"\n");
+        }
         batch << "fso.DeleteFile(WScript.ScriptFullName)\n";
     }
 
@@ -370,11 +378,15 @@ bool PackageManagerCorePrivate::buildComponentTree(QHash<QString, Component*> &c
         // now we can preselect components in the tree
         foreach (QInstaller::Component *component, components) {
             // set the checked state for all components without child (means without tristate)
+            // set checked state also for installed virtual tristate componets as otherwise
+            // those will be uninstalled
             if (component->isCheckable() && !component->isTristate()) {
                 if (component->isDefault() && isInstaller())
                     component->setCheckState(Qt::Checked);
                 else if (component->isInstalled())
                     component->setCheckState(Qt::Checked);
+            } else if (component->isVirtual() && component->isInstalled() && component->isTristate()) {
+                component->setCheckState(Qt::Checked);
             }
         }
 
@@ -394,11 +406,14 @@ bool PackageManagerCorePrivate::buildComponentTree(QHash<QString, Component*> &c
 
         restoreCheckState();
 
-        foreach (QInstaller::Component *component, components) {
-            const QStringList warnings = ComponentChecker::checkComponent(component);
-            foreach (const QString &warning, warnings)
-                qCWarning(lcComponentChecker).noquote() << warning;
+        if (m_core->isVerbose()) {
+            foreach (QInstaller::Component *component, components) {
+                const QStringList warnings = ComponentChecker::checkComponent(component);
+                foreach (const QString &warning, warnings)
+                    qCWarning(lcComponentChecker).noquote() << warning;
+            }
         }
+
     } catch (const Error &error) {
         clearAllComponentLists();
         emit m_core->finishAllComponentsReset(QList<QInstaller::Component*>());
@@ -581,6 +596,7 @@ void PackageManagerCorePrivate::initialize(const QHash<QString, QString> &params
     m_metadataJob.setPackageManagerCore(m_core);
     connect(&m_metadataJob, &Job::infoMessage, this, &PackageManagerCorePrivate::infoMessage);
     connect(&m_metadataJob, &Job::progress, this, &PackageManagerCorePrivate::infoProgress);
+    connect(&m_metadataJob, &Job::totalProgress, this, &PackageManagerCorePrivate::totalProgress);
     KDUpdater::FileDownloaderFactory::instance().setProxyFactory(m_core->proxyFactory());
 }
 
@@ -1188,8 +1204,8 @@ void PackageManagerCorePrivate::writeMaintenanceTool(OperationList performedOper
         performOperationThreaded(op, Backup);
         performOperationThreaded(op);
 
-        // copy application icons if it exists
-        const QString icon = QFileInfo(QCoreApplication::applicationFilePath()).baseName()
+        // copy application icons if it exists.
+        const QString icon = QFileInfo(QCoreApplication::applicationFilePath()).fileName()
             + QLatin1String(".icns");
         op = createOwnedOperation(QLatin1String("Copy"));
         op->setArguments(QStringList() << (sourceAppDirPath + QLatin1String("/../Resources/") + icon)
@@ -2253,7 +2269,9 @@ bool PackageManagerCorePrivate::fetchMetaInformationFromCompressedRepositories()
             case QInstaller::UserIgnoreError:
                 break;  // we can simply ignore this error, the user knows about it
             default:
-                setStatus(PackageManagerCore::Failure, m_metadataJob.errorString());
+                //Do not change core status here, we can recover if there is invalid
+                //compressed repository
+                setStatus(m_core->status(), m_metadataJob.errorString());
                 return compressedRepoFetched;
         }
     }
@@ -2424,5 +2442,29 @@ void PackageManagerCorePrivate::processFilesForDelayedDeletion()
         }
     }
 }
+
+void PackageManagerCorePrivate::findExecutablesRecursive(const QString &path, const QStringList &excludeFiles, QStringList *result)
+{
+    QString executable;
+    QDirIterator it(path, QDir::NoDotAndDotDot | QDir::Executable | QDir::Files | QDir::System, QDirIterator::Subdirectories );
+
+    while (it.hasNext()) {
+        executable = it.next();
+        foreach (QString exclude, excludeFiles) {
+            if (QDir::toNativeSeparators(executable.toLower())
+                    != QDir::toNativeSeparators(exclude.toLower())) {
+                result->append(executable);
+            }
+        }
+    }
+}
+
+QStringList PackageManagerCorePrivate::runningInstallerProcesses(const QStringList &excludeFiles)
+{
+    QStringList resultFiles;
+    findExecutablesRecursive(QCoreApplication::applicationDirPath(), excludeFiles, &resultFiles);
+    return checkRunningProcessesFromList(resultFiles);
+}
+
 
 } // namespace QInstaller

@@ -54,6 +54,7 @@
 #include <QtConcurrentRun>
 
 #include <QtCore/QMutex>
+#include <QtCore/QRegExp>
 #include <QtCore/QSettings>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QTextCodec>
@@ -845,11 +846,12 @@ PackageManagerCore::PackageManagerCore(qint64 magicmaker, const QList<OperationB
 
     // Creates and initializes a remote client, makes us get admin rights for QFile, QSettings
     // and QProcess operations. Init needs to called to set the server side authorization key.
-    RemoteClient::instance().init(socketName, key, mode, Protocol::StartAs::SuperUser);
+    if (!d->isUpdater()) {
+        RemoteClient::instance().init(socketName, key, mode, Protocol::StartAs::SuperUser);
+        RemoteClient::instance().setAuthorizationFallbackDisabled(settings().disableAuthorizationFallback());
+    }
 
     d->initialize(QHash<QString, QString>());
-
-    RemoteClient::instance().setAuthorizationFallbackDisabled(settings().disableAuthorizationFallback());
 
     //
     // Sanity check to detect a broken installations with missing operations.
@@ -1322,6 +1324,12 @@ bool PackageManagerCore::setDefaultPageVisible(int page, bool visible)
 
     Sets a validator for the custom page specified by \a name and \a callbackName
     for the component \a component.
+
+    When using this, \a name has to match a dynamic page starting with \c Dynamic. For example, if the page
+    is called DynamicReadyToInstallWidget, then \a name should be set to \c ReadyToInstallWidget. The
+    \a callbackName should be set to a function that returns a boolean. When the \c Next button is pressed
+    on the custom page, then it will call the \a callbackName function. If this returns \c true, then it will
+    move to the next page.
 
     \sa {installer::setValidatorForCustomPage}{installer.setValidatorForCustomPage}
     \sa setValidatorForCustomPageRequested()
@@ -1798,23 +1806,60 @@ ComponentModel *PackageManagerCore::updaterComponentModel() const
 
 void PackageManagerCore::updateComponentsSilently()
 {
+    //Check if there are processes running in the install
+    QStringList excludeFiles;
+    excludeFiles.append(maintenanceToolName());
+
+    QStringList runningProcesses = d->runningInstallerProcesses(excludeFiles);
+    if (!runningProcesses.isEmpty()) {
+        qDebug() << "Unable to update components. Please stop these processes: "
+                 << runningProcesses << " and try again.";
+        return;
+    }
+
     autoAcceptMessageBoxes();
+
+    //Prevent infinite loop if installation for some reason fails.
+    setMessageBoxAutomaticAnswer(QLatin1String("installationErrorWithRetry"), QMessageBox::Cancel);
+
     fetchRemotePackagesTree();
-    //Mark all components to be installed
+
     const QList<QInstaller::Component*> componentList = components(
         ComponentType::Root | ComponentType::Descendants);
 
-    foreach (Component *comp, componentList) {
-        comp->setCheckState(Qt::Checked);
-    }
-    QString htmlOutput;
-    bool componentsOk = calculateComponents(&htmlOutput);
-    if (componentsOk) {
-        if (runPackageUpdater())
-            qDebug() << "Components updated successfully.";
-    }
-    else {
-        qDebug() << htmlOutput;
+    if (componentList.count() ==  0) {
+        qDebug() << "No updates available.";
+    } else {
+        // Check if essential components are available (essential components are disabled).
+        // If essential components are found, update first essential updates,
+        // restart installer and install rest of the updates.
+        bool essentialUpdatesFound = false;
+        foreach (Component *component, componentList) {
+            if (component->value(scEssential, scFalse).toLower() == scTrue)
+                essentialUpdatesFound = true;
+        }
+        if (!essentialUpdatesFound) {
+            //Mark all components to be updated
+            foreach (Component *comp, componentList) {
+                comp->setCheckState(Qt::Checked);
+            }
+        }
+        QString htmlOutput;
+        bool componentsOk = calculateComponents(&htmlOutput);
+        if (componentsOk) {
+            if (runPackageUpdater()) {
+                writeMaintenanceTool();
+                if (essentialUpdatesFound) {
+                    qDebug() << "Essential components updated successfully.";
+                }
+                else {
+                    qDebug() << "Components updated successfully.";
+                }
+            }
+        }
+        else {
+            qDebug() << htmlOutput;
+        }
     }
 }
 

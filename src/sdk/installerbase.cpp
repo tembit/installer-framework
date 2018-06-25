@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Installer Framework.
@@ -57,6 +57,10 @@
 #include <QTranslator>
 #include <QUuid>
 #include <QLoggingCategory>
+
+#ifdef ENABLE_SQUISH
+#include <qtbuiltinhook.h>
+#endif
 
 InstallerBase::InstallerBase(int &argc, char *argv[])
     : SDKApp<QApplication>(argc, argv)
@@ -164,7 +168,14 @@ int InstallerBase::run()
             + m_core->settings().controlScript();
     }
 
-    if (parser.isSet(QLatin1String(CommandLineOptions::Proxy))) {
+    // From Qt5.8 onwards a separate command line option --proxy is not needed as system
+    // proxy is used by default. If Qt is built with QT_USE_SYSTEM_PROXIES false
+    // then system proxies are not used by default.
+    if ((parser.isSet(QLatin1String(CommandLineOptions::Proxy))
+#if QT_VERSION > 0x050800
+            || QNetworkProxyFactory::usesSystemConfiguration()
+#endif
+            ) && !parser.isSet(QLatin1String(CommandLineOptions::NoProxy))) {
         m_core->settings().setProxyType(QInstaller::Settings::SystemProxy);
         KDUpdater::FileDownloaderFactory::instance().setProxyFactory(m_core->proxyFactory());
     }
@@ -217,6 +228,12 @@ int InstallerBase::run()
             .value(QLatin1String(CommandLineOptions::InstallCompressedRepository)));
         if (repoList.isEmpty())
             throw QInstaller::Error(QLatin1String("Empty repository list for option 'installCompressedRepository'."));
+        foreach (QString repository, repoList) {
+            if (!QFileInfo::exists(repository)) {
+                qDebug() << "The file " << repository << "does not exist.";
+                return EXIT_FAILURE;
+            }
+        }
         m_core->setTemporaryRepositories(repoList, false, true);
     }
 
@@ -251,7 +268,7 @@ int InstallerBase::run()
                     QCoreApplication::instance()->installTranslator(qtTranslator.take());
 
                 QScopedPointer<QTranslator> ifwTranslator(new QTranslator(QCoreApplication::instance()));
-                if (ifwTranslator->load(locale, QString(), QString(), directory))
+                if (ifwTranslator->load(locale, QLatin1String("ifw"), QLatin1String("_"), directory))
                     QCoreApplication::instance()->installTranslator(ifwTranslator.take());
 
                 // To stop loading other translations it's sufficient that
@@ -281,6 +298,9 @@ int InstallerBase::run()
     if (parser.isSet(QLatin1String(CommandLineOptions::SilentUpdate))) {
         if (m_core->isInstaller())
             throw QInstaller::Error(QLatin1String("Cannot start installer binary as updater."));
+        const ProductKeyCheck *const productKeyCheck = ProductKeyCheck::instance();
+        if (!productKeyCheck->hasValidLicense())
+            throw QInstaller::Error(QLatin1String("Silent update not allowed."));
         m_core->setUpdater();
         m_core->updateComponentsSilently();
     }
@@ -305,6 +325,20 @@ int InstallerBase::run()
         if (status != QInstaller::PackageManagerCore::Success)
             return status;
 
+#ifdef ENABLE_SQUISH
+        int squishPort = 11233;
+        if (parser.isSet(QLatin1String(CommandLineOptions::SquishPort))) {
+            squishPort = parser.value(QLatin1String(CommandLineOptions::SquishPort)).toInt();
+        }
+        if (squishPort != 0) {
+            if (Squish::allowAttaching(squishPort))
+                qDebug() << "Attaching to squish port " << squishPort << " succeeded";
+            else
+                qDebug() << "Attaching to squish failed.";
+        } else {
+            qWarning() << "Invalid squish port number: " << squishPort;
+        }
+#endif
         const int result = QCoreApplication::instance()->exec();
         if (result != 0)
             return result;

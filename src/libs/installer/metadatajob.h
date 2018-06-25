@@ -74,12 +74,15 @@ private slots:
     void unzipTaskFinished();
     void metadataTaskFinished();
     void progressChanged(int progress);
+    void setProgressTotalAmount(int maximum);
     void unzipRepositoryTaskFinished();
     void startXMLTask(const QList<FileTaskItem> items);
 
 private:
+    bool fetchMetaDataPackages();
     void startUnzipRepositoryTask(const Repository &repo);
     void reset();
+    void resetCompressedFetch();
     Status parseUpdatesXml(const QList<FileTaskResult> &results);
 
 private:
@@ -94,6 +97,10 @@ private:
     QHash<QFutureWatcher<void> *, QObject*> m_unzipRepositoryTasks;
     bool m_addCompressedPackages;
     QList<FileTaskItem> m_unzipRepositoryitems;
+    QList<FileTaskResult> m_metadataResult;
+    int m_downloadableChunkSize;
+    int m_taskNumber;
+    int m_totalTaskCount;
 };
 
 }   // namespace QInstaller

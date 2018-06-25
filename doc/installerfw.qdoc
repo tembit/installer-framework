@@ -691,8 +691,7 @@
             \li Checkable
             \li Set to \c false if you want to hide the checkbox for an item. This is useful
                 when only a few subcomponents should be selected instead of all. Optional.
-                \note The content from the data directory is not installed if \c Checkable
-                is \c false unless \c ForcedInstallation is set to \c true.
+
     \endtable
 
     \section2 Component Dependencies
@@ -756,7 +755,7 @@
 
     You can also create hybrid installers that store some components locally
     and receive others via a network connection. For more information, see
-    ###TODO insert link here.
+    \l {Reducing Installer Size}.
 
     For information about how to implement data integration into the
     installer binary, see QInstaller::BinaryContent.

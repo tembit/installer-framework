@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Installer Framework.
@@ -44,7 +44,7 @@
 
 #include <iostream>
 
-#if defined(Q_OS_OSX)
+#if defined(Q_OS_OSX) or defined(Q_OS_UNIX)
 #  include <unistd.h>
 #  include <sys/types.h>
 #endif
@@ -58,6 +58,13 @@ static const char PLACEHOLDER[32] = "MY_InstallerCreateDateTime_MY";
 
 int main(int argc, char *argv[])
 {
+#if defined(Q_OS_WIN)
+    if (!qEnvironmentVariableIsSet("QT_AUTO_SCREEN_SCALE_FACTOR")
+            && !qEnvironmentVariableIsSet("QT_SCALE_FACTOR")
+            && !qEnvironmentVariableIsSet("QT_SCREEN_SCALE_FACTORS")) {
+        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    }
+#endif
     // increase maximum numbers of file descriptors
 #if defined (Q_OS_OSX)
     QCoreApplication::setSetuidAllowed(true);
@@ -132,8 +139,24 @@ int main(int argc, char *argv[])
 
         const bool production = (mode.compare(QLatin1String(QInstaller::Protocol::ModeProduction),
             Qt::CaseInsensitive) == 0);
-        if (production)
+        if (production) {
             argumentsValid = (!key.isEmpty()) && (!socketName.isEmpty());
+#if defined(Q_OS_UNIX) && !defined(Q_OS_OSX)
+            /* In production mode detach child so that sudo waiting on us will terminate. */
+            pid_t child = fork();
+            if (child <= -1) {
+                std::cerr << "Fatal cannot fork and detach server." << std::endl;
+                return EXIT_FAILURE;
+            }
+
+            if (child != 0) {
+                return EXIT_SUCCESS;
+            }
+
+            ::setsid();
+#endif
+        }
+
 
         SDKApp<QCoreApplication> app(argc, argv);
         if (!argumentsValid) {
@@ -177,17 +200,11 @@ int main(int argc, char *argv[])
 
         if (parser.isSet(QLatin1String(CommandLineOptions::Proxy))) {
             // Make sure we honor the system's proxy settings
-#if defined(Q_OS_UNIX) && !defined(Q_OS_OSX)
-            QUrl proxyUrl(QString::fromLatin1(qgetenv("http_proxy")));
-            if (proxyUrl.isValid()) {
-                QNetworkProxy proxy(QNetworkProxy::HttpProxy, proxyUrl.host(), proxyUrl.port(),
-                    proxyUrl.userName(), proxyUrl.password());
-                QNetworkProxy::setApplicationProxy(proxy);
-            }
-#else
             QNetworkProxyFactory::setUseSystemConfiguration(true);
-#endif
         }
+
+        if (parser.isSet(QLatin1String(CommandLineOptions::NoProxy)))
+            QNetworkProxyFactory::setUseSystemConfiguration(false);
 
         if (parser.isSet(QLatin1String(CommandLineOptions::CheckUpdates)))
             return UpdateChecker(argc, argv).check();
