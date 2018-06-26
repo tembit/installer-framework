@@ -69,7 +69,8 @@ LUPDATE = $$toNativeSeparators($$cleanPath($$[QT_INSTALL_BINS]/lupdate))
 LCONVERT = $$toNativeSeparators($$cleanPath($$[QT_INSTALL_BINS]/lconvert))
 QMAKE_BINARY = $$toNativeSeparators($$cleanPath($$[QT_INSTALL_BINS]/qmake))
 
-win32 {
+# exclude MXE when append ".exe" to Qt tools for Windows build
+win32:!equals(QMAKE_HOST.os,"Linux") {
     RCC = $${RCC}.exe
     LRELEASE = $${LRELEASE}.exe
     LUPDATE = $${LUPDATE}.exe

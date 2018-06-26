@@ -26,10 +26,6 @@ CONFIG(static, static|shared) {
 
 DESTDIR = $$IFW_APP_PATH
 
-# dirty fix for MXE bug
-LRELEASE ~= s/\.exe$//
-RCC ~= s/\.exe$//
-
 exists($$LRELEASE) {
     IB_TRANSLATIONS = $$files($$PWD/translations/*_??.ts)
     IB_TRANSLATIONS -= $$PWD/translations/ifw_en.ts
