@@ -2305,7 +2305,7 @@ Bitte kopieren Sie den Installer auf ein lokales Laufwerk</translation>
         <translation>Installationsordner</translation>
     </message>
     <message>
-        <source>Please specify the folder where %1 will be installed.</source>
+        <source>Please specify the directory where %1 will be installed.</source>
         <translation>Bitte geben Sie den Ordner an, in dem %1 installiert werden soll.</translation>
     </message>
     <message>
@@ -2319,13 +2319,13 @@ Bitte kopieren Sie den Installer auf ein lokales Laufwerk</translation>
         <translation>&amp;Durchsuchen ...</translation>
     </message>
     <message>
-        <source>The folder you selected already exists and contains an installation. Choose a different target for installation.</source>
+        <source>The directory you selected already exists and contains an installation. Choose a different target for installation.</source>
         <translation>Der ausgewählte Ordner existiert bereits und enthält eine Installation. Bitte wählen Sie einen anderen Zielordner aus.</translation>
     </message>
     <message>
-        <source>You have selected an existing, non-empty folder for installation.
+        <source>You have selected an existing, non-empty directory for installation.
 Note that it will be completely wiped on uninstallation of this application.
-It is not advisable to install into this folder as installation might fail.
+It is not advisable to install into this directory as installation might fail.
 Do you want to continue?</source>
         <translation>Sie haben einen existierenden, nicht leeren Ordner für die Installation ausgewählt.
 Dieser wird bei der Deinstallation dieser Anwendung komplett gelöscht werden.
@@ -2337,7 +2337,7 @@ Möchten Sie trotzdem fortsetzen?</translation>
         <translation>Existierende Datei oder Symlink ausgewählt, bitte ein anderes Installationsziel auswählen.</translation>
     </message>
     <message>
-        <source>The installation path cannot be empty, please specify a valid folder.</source>
+        <source>The installation path cannot be empty, please specify a valid directory.</source>
         <translation>Der Installationspfad darf nicht leer sein. Bitte einen gültigen Ordner angeben.</translation>
     </message>
     <message>
@@ -2361,11 +2361,11 @@ Möchten Sie trotzdem fortsetzen?</translation>
         <translation>Der von Ihnen eingegebene Pfad ist ungültig, bitte geben Sie ein gültiges Laufwerk an.</translation>
     </message>
     <message>
-        <source>The installation path must not end with &apos;.&apos;, please specify a valid folder.</source>
+        <source>The installation path must not end with &apos;.&apos;, please specify a valid directory.</source>
         <translation>Der Installationspfad darf nicht auf &apos;.&apos; enden, bitte geben Sie einen gültigen Ordner ein.</translation>
     </message>
     <message>
-        <source>The installation path must not contain &apos;%1&apos;, please specify a valid folder.</source>
+        <source>The installation path must not contain &quot;%1&quot;, please specify a valid directory.</source>
         <translation>Der Installationspfad darf nicht %1 enthalten, bitte geben Sie einen gültigen Ordner ein.</translation>
     </message>
     <message>
