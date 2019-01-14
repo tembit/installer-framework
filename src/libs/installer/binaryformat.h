@@ -81,7 +81,11 @@ private:
     void setOpenMode(OpenMode mode) { QIODevice::setOpenMode(mode); }
 
 private:
+#ifdef Q_OS_OSX
+    QFile m_file;
+#else
     QFSFileEngine m_file;
+#endif
     QByteArray m_name;
     Range<qint64> m_segment;
 };
