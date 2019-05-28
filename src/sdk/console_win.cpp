@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Installer Framework.
@@ -46,7 +46,7 @@
 
 static bool isRedirected(HANDLE stdHandle)
 {
-    if (stdHandle == NULL) // launched from GUI
+    if (stdHandle == nullptr) // launched from GUI
         return false;
     DWORD fileType = GetFileType(stdHandle);
     if (fileType == FILE_TYPE_UNKNOWN) {
@@ -73,8 +73,10 @@ static bool isRedirected(HANDLE stdHandle)
  * (e.g. into a file), Console does not interfere.
  */
 Console::Console() :
-    m_oldCout(0),
-    m_oldCerr(0)
+    m_oldCout(nullptr),
+    m_oldCerr(nullptr),
+    parentConsole(false),
+    newConsoleCreated(false)
 {
     bool isCoutRedirected = isRedirected(GetStdHandle(STD_OUTPUT_HANDLE));
     bool isCerrRedirected = isRedirected(GetStdHandle(STD_ERROR_HANDLE));
@@ -83,6 +85,7 @@ Console::Console() :
         // try to use parent console. else launch & set up new console
         parentConsole = AttachConsole(ATTACH_PARENT_PROCESS);
         if (!parentConsole) {
+            newConsoleCreated = true;
             AllocConsole();
             HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
             if (handle != INVALID_HANDLE_VALUE) {
@@ -97,7 +100,7 @@ Console::Console() :
                                | ENABLE_EXTENDED_FLAGS);
 # ifndef Q_CC_MINGW
             HMENU systemMenu = GetSystemMenu(GetConsoleWindow(), FALSE);
-            if (systemMenu != NULL)
+            if (systemMenu != nullptr)
                 RemoveMenu(systemMenu, SC_CLOSE, MF_BYCOMMAND);
             DrawMenuBar(GetConsoleWindow());
 # endif
@@ -119,11 +122,11 @@ Console::Console() :
 
 Console::~Console()
 {
-    if (!parentConsole) {
-        system("PAUSE");
-    } else {
+    if (parentConsole) {
         // simulate enter key to switch to boot prompt
         PostMessage(GetConsoleWindow(), WM_KEYDOWN, 0x0D, 0);
+    } else if (newConsoleCreated) {
+        system("PAUSE");
     }
 
     if (m_oldCerr)

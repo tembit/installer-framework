@@ -546,7 +546,7 @@ QT_END_NAMESPACE
 static int runRcc(const QStringList &args)
 {
     const int argc = args.count();
-    QVector<char*> argv(argc, 0);
+    QVector<char*> argv(argc, nullptr);
     for (int i = 0; i < argc; ++i)
         argv[i] = qstrdup(qPrintable(args[i]));
 
@@ -754,6 +754,13 @@ static int printErrorAndUsageAndExit(const QString &err)
 
 int main(int argc, char **argv)
 {
+// increase maximum numbers of file descriptors
+#if defined (Q_OS_MACOS)
+    struct rlimit rl;
+    getrlimit(RLIMIT_NOFILE, &rl);
+    rl.rlim_cur = qMin(static_cast<rlim_t>(OPEN_MAX), rl.rlim_max);
+    setrlimit(RLIMIT_NOFILE, &rl);
+#endif
     QCoreApplication app(argc, argv);
 
     QInstaller::init();
@@ -770,6 +777,7 @@ int main(int argc, char **argv)
     QString target;
     QString configFile;
     QStringList packagesDirectories;
+    QStringList repositoryDirectories;
     bool onlineOnly = false;
     bool offlineOnly = false;
     QStringList resources;
@@ -793,6 +801,16 @@ int main(int argc, char **argv)
                     "specified location."));
             }
             packagesDirectories.append(*it);
+        } else if (*it == QLatin1String("--repository")) {
+            ++it;
+            if (it == args.end()) {
+                return printErrorAndUsageAndExit(QString::fromLatin1("Error: Repository parameter missing argument."));
+            }
+            if (QFileInfo(*it).exists()) {
+                repositoryDirectories.append(*it);
+            } else {
+                return printErrorAndUsageAndExit(QString::fromLatin1("Error: Only local filesystem repositories now supported."));
+            }
         } else if (*it == QLatin1String("-e") || *it == QLatin1String("--exclude")) {
             ++it;
             if (!filteredPackages.isEmpty())
@@ -905,8 +923,8 @@ int main(int argc, char **argv)
     if (configFile.isEmpty())
         return printErrorAndUsageAndExit(QString::fromLatin1("Error: No configuration file selected."));
 
-    if (packagesDirectories.isEmpty())
-        return printErrorAndUsageAndExit(QString::fromLatin1("Error: Package directory parameter missing."));
+    if (packagesDirectories.isEmpty() && repositoryDirectories.isEmpty())
+        return printErrorAndUsageAndExit(QString::fromLatin1("Error: Both Package directory and Repository parameters missing."));
 
     qDebug() << "Parsed arguments, ok.";
 
@@ -924,14 +942,29 @@ int main(int argc, char **argv)
 
         // Note: the order here is important
 
-        // 1; create the list of available packages
-        QInstallerTools::PackageInfoVector packages =
-            QInstallerTools::createListOfPackages(packagesDirectories, &filteredPackages, ftype);
+        QInstallerTools::PackageInfoVector packages;
 
-        // 2; copy the packages data and setup the packages vector with the files we copied,
-        //    must happen before copying meta data because files will be compressed if
-        //    needed and meta data generation relies on this
-        QInstallerTools::copyComponentData(packagesDirectories, tmpRepoDir, &packages);
+        // 1; update the list of available compressed packages
+        if (!repositoryDirectories.isEmpty()) {
+            // 1.1; search packages
+            QInstallerTools::PackageInfoVector precompressedPackages = QInstallerTools::createListOfRepositoryPackages(repositoryDirectories,
+                &filteredPackages, ftype);
+            // 1.2; add to common vector
+            packages.append(precompressedPackages);
+        }
+
+        // 2; update the list of available prepared packages
+        if (!packagesDirectories.isEmpty()) {
+            // 2.1; search packages
+            QInstallerTools::PackageInfoVector preparedPackages = QInstallerTools::createListOfPackages(packagesDirectories,
+                &filteredPackages, ftype);
+            // 2.2; copy the packages data and setup the packages vector with the files we copied,
+            //    must happen before copying meta data because files will be compressed if
+            //    needed and meta data generation relies on this
+            QInstallerTools::copyComponentData(packagesDirectories, tmpRepoDir, &preparedPackages);
+            // 2.3; add to common vector
+            packages.append(preparedPackages);
+        }
 
         // 3; copy the meta data of the available packages, generate Updates.xml
         QInstallerTools::copyMetaData(tmpMetaDir, tmpRepoDir, packages, settings

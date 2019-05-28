@@ -60,6 +60,7 @@ static const QLatin1String scInstalledVersion("InstalledVersion");
 static const QLatin1String scUncompressedSize("UncompressedSize");
 static const QLatin1String scUncompressedSizeSum("UncompressedSizeSum");
 static const QLatin1String scRequiresAdminRights("RequiresAdminRights");
+static const QLatin1String scSHA1("SHA1");
 
 // constants used throughout the components class
 static const QLatin1String scVirtual("Virtual");
@@ -89,6 +90,9 @@ static const QLatin1String scProductUUID("ProductUUID");
 static const QLatin1String scAllUsers("AllUsers");
 static const QLatin1String scSupportsModify("SupportsModify");
 static const QLatin1String scWinCpDisplayIcon("WinCpDisplayIcon");
+static const QLatin1String scAllowUnstableComponents("AllowUnstableComponents");
+static const QLatin1String scSaveDefaultRepositories("SaveDefaultRepositories");
+static const QLatin1String scRepositoryCategoryDisplayName("RepositoryCategoryDisplayName");
 
 const char scRelocatable[] = "@RELOCATABLE_PATH@";
 
